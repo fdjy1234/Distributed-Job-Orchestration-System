@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkiJobControl 中控台 MVP</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f7f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { margin: 0; color: #2c3e50; }
+        .node-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 20px; border-top: 5px solid #3498db; }
+        .node-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .node-id { font-weight: bold; font-size: 1.1em; color: #34495e; }
+        .metrics { display: flex; gap: 15px; font-size: 0.9em; color: #7f8c8d; margin-bottom: 15px; }
+        .worker-list { border-top: 1px solid #eee; padding-top: 10px; }
+        .worker-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #fafafa; font-size: 0.9em; }
+        .worker-id { color: #2980b9; font-family: monospace; }
+        .worker-status { padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+        .status-idle { background: #ecf0f1; color: #7f8c8d; }
+        .status-running { background: #e1f5fe; color: #0288d1; }
+        .terminate-btn { background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; transition: background 0.2s; }
+        .terminate-btn:hover { background: #c0392b; }
+        .badge { background: #27ae60; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SkiJobControl <small style="font-size: 0.5em; color: #95a5a6;">Distributed Orchestration</small></h1>
+            <div id="connection-status" class="badge">SignalR 連線中...</div>
+        </header>
+
+        <div id="nodes" class="node-grid">
+            <!-- Node cards will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        const nodesContainer = document.getElementById('nodes');
+        const statusBadge = document.getElementById('connection-status');
+        const nodes = {};
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/node")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("UpdateNodeStatus", (status) => {
+            console.log("Status update received:", status);
+            nodes[status.nodeId] = status;
+            renderNodes();
+        });
+
+        async function terminateWorker(nodeId, pid, jobId) {
+            if (!confirm(`確定要終止進程 ${pid} (任務: ${jobId || '無'}) 嗎？`)) return;
+            
+            try {
+                const response = await fetch('/api/control/terminate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nodeId, processId: pid, jobId })
+                });
+                if (response.ok) {
+                    alert('終止指令已發送');
+                } else {
+                    alert('發送失敗: ' + await response.text());
+                }
+            } catch (err) {
+                alert('錯誤: ' + err.message);
+            }
+        }
+
+        function renderNodes() {
+            nodesContainer.innerHTML = '';
+            Object.values(nodes).forEach(node => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                const workersHtml = node.workers.map(w => `
+                    <div class="worker-item">
+                        <div>
+                            <span class="worker-id">PID: ${w.processId}</span>
+                            <div style="font-size: 0.8em; color: #95a5a6;">Job: ${w.jobId || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <span class="worker-status ${w.status.toLowerCase().includes('running') ? 'status-running' : 'status-idle'}">${w.status}</span>
+                            <button class="terminate-btn" onclick="terminateWorker('${node.nodeId}', ${w.processId}, '${w.jobId}')">Kill</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="node-header">
+                        <div class="node-id">${node.nodeId}</div>
+                        <div class="badge" style="background: ${node.activeWorkers > 0 ? '#f39c12' : '#27ae60'}">
+                            ${node.activeWorkers} Workers Active
+                        </div>
+                    </div>
+                    <div class="metrics">
+                        <span>CPU: ${node.cpuUsage.toFixed(1)}%</span>
+                        <span>RAM: ${node.ramUsageMb.toFixed(0)} MB</span>
+                    </div>
+                    <div class="worker-list">
+                        ${workersHtml}
+                    </div>
+                `;
+                nodesContainer.appendChild(card);
+            });
+        }
+
+        connection.start()
+            .then(() => {
+                statusBadge.textContent = 'SignalR 已連線';
+                statusBadge.style.background = '#27ae60';
+            })
+            .catch(err => {
+                statusBadge.textContent = '連線失敗';
+                statusBadge.style.background = '#e74c3c';
+                console.error(err);
+            });
+    </script>
+</body>
+</html>

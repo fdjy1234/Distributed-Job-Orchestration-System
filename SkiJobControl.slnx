@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="SkiJobControl.Console/SkiJobControl.Console.csproj" />
+  <Project Path="SkiJobControl.Core/SkiJobControl.Core.csproj" />
+  <Project Path="SkiJobControl.Host/SkiJobControl.Host.csproj" />
+  <Project Path="SkiJobControl.Protos/SkiJobControl.Protos.csproj" />
+  <Project Path="SkiJobControl.Tests/SkiJobControl.Tests.csproj" />
+  <Project Path="SkiJobControl.Worker/SkiJobControl.Worker.csproj" />
+</Solution>

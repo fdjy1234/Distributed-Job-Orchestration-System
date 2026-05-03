@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+option csharp_namespace = "SkiJobControl.Protos";
+
+package jobcontrol;
+
+service JobControlService {
+  // Bidirectional stream for real-time status reporting and remote control
+  rpc OpenSession (stream NodeStatus) returns (stream ControlCommand);
+}
+
+message NodeStatus {
+  string node_id = 1;
+  double cpu_usage = 2;
+  double ram_usage_mb = 3;
+  int32 active_workers = 4;
+  repeated WorkerInfo workers = 5;
+}
+
+message WorkerInfo {
+  int32 process_id = 1;
+  string job_id = 2;
+  string status = 3;
+}
+
+message ControlCommand {
+  string command_id = 1;
+  oneof payload {
+    TerminateWorkerRequest terminate_worker = 2;
+  }
+}
+
+message TerminateWorkerRequest {
+  int32 process_id = 1;
+  string job_id = 2;
+}
