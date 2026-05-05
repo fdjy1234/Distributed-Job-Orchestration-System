@@ -12,7 +12,16 @@ var builder = Host.CreateApplicationBuilder(args);
 // Configuration
 string workerPath = builder.Configuration["WorkerPath"] ?? "SkiJobControl.Worker.exe";
 int minPoolSize = builder.Configuration.GetValue<int>("MinPoolSize", 2);
-string consoleUrl = builder.Configuration["ConsoleUrl"] ?? "http://localhost:5249";
+string consoleUrl = builder.Configuration["ConsoleUrl"] ?? "http://localhost:5250";
+
+// Console gRPC endpoint must use the HTTP/2 port (default: 5250).
+if (Uri.TryCreate(consoleUrl, UriKind.Absolute, out var parsedConsoleUri) && parsedConsoleUri.Port == 5249)
+{
+    consoleUrl = $"{parsedConsoleUri.Scheme}://{parsedConsoleUri.Host}:5250";
+    Console.WriteLine("[Host] ConsoleUrl pointed to HTTP/1 port 5249. Auto-corrected to gRPC port 5250.");
+}
+
+Console.WriteLine($"[Host] Using Console gRPC endpoint: {consoleUrl}");
 
 builder.Services.AddSingleton<IJobRepository>(new FileJobRepository());
 builder.Services.AddSingleton(new WorkerProcessManager(workerPath, minPoolSize));
@@ -20,6 +29,11 @@ builder.Services.AddSingleton(new WorkerProcessManager(workerPath, minPoolSize))
 builder.Services.AddGrpcClient<JobControlService.JobControlServiceClient>(o =>
 {
     o.Address = new Uri(consoleUrl);
+})
+.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    EnableMultipleHttp2Connections = true,
+    UseProxy = false
 });
 
 builder.Services.AddHostedService<HostService>();

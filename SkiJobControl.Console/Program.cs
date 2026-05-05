@@ -36,10 +36,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+// Do not force HTTPS redirection here.
+// This app intentionally serves HTTP/1 (Web UI) and h2c HTTP/2 (gRPC) on fixed local ports.
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+// Serve default files (e.g., index.html) before static files so the default-file middleware
+// can rewrite requests to the appropriate static file.
 app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseAuthorization();
 
 app.MapControllers();

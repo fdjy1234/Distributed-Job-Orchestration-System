@@ -61,6 +61,24 @@ graph TB
     *   管理本機 Worker 進程池 (`WorkerProcessManager`)。
     *   從任務儲存庫 (`JobRepository`) 獲取待處理任務並分派給空閒 Worker。
     *   執行來自控制台的遠端指令 (如 Kill Process)。
+    *   每 10 秒輸出健康檢查遙測，提供 session 存活與連線品質可觀測性。
+
+#### Host 健康檢查遙測 (每 10 秒)
+Host 會固定輸出 `HealthCheck` 日誌，以便快速判斷節點是否仍與 Console 維持可用的 gRPC session。
+
+輸出欄位包含：
+*   `SessionAlive`: 目前是否有存活中的 gRPC session。
+*   `SessionUptimeSec`: 本次 session 的存活秒數。
+*   `LastStatusSentSecAgo`: 距離上次成功回報 `NodeStatus` 的秒數。
+*   `LastCommandSecAgo`: 距離上次接收到控制命令的秒數（尚未收到時為 -1）。
+*   `LastGrpcErrorSecAgo`: 距離上次 gRPC 連線錯誤的秒數（尚未發生時為 -1）。
+*   `WorkerPool`: Worker 池目前進程數。
+*   `ActiveWorkers`: 非 Idle 狀態的 Worker 數。
+
+此遙測可用於：
+*   快速辨識「session 已斷線但進程仍在」的問題。
+*   觀察回報頻率是否異常（例如 `LastStatusSentSecAgo` 持續升高）。
+*   追蹤近期是否有 gRPC 波動（`LastGrpcErrorSecAgo`）。
 
 ### 2.3 工作進程 (SkiJobControl.Worker)
 *   **角色**: 實際執行業務邏輯的獨立進程。

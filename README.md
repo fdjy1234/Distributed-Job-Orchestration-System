@@ -49,6 +49,7 @@ graph TB
 - 週期性回報 CPU、RAM 與 Worker 狀態。
 - 維護本機 Worker 進程池，並從 JobRepository 取出任務分派給空閒 Worker。
 - 接收 Console 下發的控制命令並執行。
+- 每 10 秒輸出一次健康檢查日誌，包含 Session 存活狀態、最近狀態回報時間、最近命令接收時間、最近 gRPC 錯誤時間、Worker 池大小與活躍 Worker 數。
 
 ### Worker
 - 實際執行任務的獨立進程。
@@ -80,22 +81,47 @@ graph TB
 
 ## 執行方式
 
-### Console
+### 一鍵啟動（Demo 用）
+
+```bat
+start_system.bat
+```
+
+執行後會自動：
+1. 清理殘留的 Host/Console 進程（避免埠 5249/5250 佔用）
+1. 建置整個 solution
+2. 開啟 Console（Web UI / gRPC Server）
+3. 等待 Console 就緒（8 秒）
+4. 開啟 Host（Worker 池 + gRPC Client 連上 Console）
+5. 自動開啟瀏覽器至 Web UI
+
+### 手動啟動
+
+#### Console
 ```bash
 cd SkiJobControl.Console
-dotnet run
+dotnet run --no-launch-profile
 ```
 
 - Web UI：`http://localhost:5249`
 - Swagger：`http://localhost:5249/swagger`
+- gRPC：`http://localhost:5250`（供 Host 連線用）
 
-### Host
+#### Host
 ```bash
 cd SkiJobControl.Host
-dotnet run
+dotnet run --no-launch-profile
 ```
 
-預設會連到 Console 的 gRPC 端點：`http://0.0.0.0:5250`
+預設連到 Console 的 gRPC 端點：`http://localhost:5250`
+
+Host 會每 10 秒輸出健康檢查資訊，日誌關鍵字為：`HealthCheck`。
+常見欄位：
+- `SessionAlive`：目前 gRPC session 是否存活
+- `SessionUptimeSec`：本次 session 已持續秒數
+- `LastStatusSentSecAgo`：距離上次狀態回報秒數
+- `LastCommandSecAgo`：距離上次收到控制命令秒數（未收到時為 -1）
+- `LastGrpcErrorSecAgo`：距離上次 gRPC 錯誤秒數（未發生時為 -1）
 
 ## 設定重點
 
