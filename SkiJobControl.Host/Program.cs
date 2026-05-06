@@ -12,6 +12,8 @@ var builder = Host.CreateApplicationBuilder(args);
 // Configuration
 string workerPath = builder.Configuration["WorkerPath"] ?? "SkiJobControl.Worker.exe";
 int minPoolSize = builder.Configuration.GetValue<int>("MinPoolSize", 2);
+string jobFilePath = builder.Configuration["JobFilePath"]
+    ?? Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "shared", "jobs_mock.json"));
 string consoleUrl = builder.Configuration["ConsoleUrl"] ?? "http://localhost:5250";
 
 // Console gRPC endpoint must use the HTTP/2 port (default: 5250).
@@ -22,9 +24,10 @@ if (Uri.TryCreate(consoleUrl, UriKind.Absolute, out var parsedConsoleUri) && par
 }
 
 Console.WriteLine($"[Host] Using Console gRPC endpoint: {consoleUrl}");
+Console.WriteLine($"[Host] Using shared job file: {jobFilePath}");
 
-builder.Services.AddSingleton<IJobRepository>(new FileJobRepository());
-builder.Services.AddSingleton(new WorkerProcessManager(workerPath, minPoolSize));
+builder.Services.AddSingleton<IJobRepository>(new FileJobRepository(jobFilePath));
+builder.Services.AddSingleton(new WorkerProcessManager(workerPath, minPoolSize, jobFilePath));
 
 builder.Services.AddGrpcClient<JobControlService.JobControlServiceClient>(o =>
 {

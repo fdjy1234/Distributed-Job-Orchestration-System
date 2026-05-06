@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using SkiJobControl.Console.Hubs;
 using SkiJobControl.Console.Services;
+using SkiJobControl.Core.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,9 @@ builder.WebHost.ConfigureKestrel(options =>
 builder.Services.AddGrpc();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<NodeSessionManager>();
+string jobFilePath = builder.Configuration["JobFilePath"]
+    ?? Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "shared", "jobs_mock.json"));
+builder.Services.AddSingleton<IJobRepository>(new FileJobRepository(jobFilePath));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

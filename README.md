@@ -87,6 +87,12 @@ graph TB
 start_system.bat
 ```
 
+雙 Host 模擬（同機啟動 2 個 Host）：
+
+```bat
+start_system_2hosts.bat
+```
+
 執行後會自動：
 1. 清理殘留的 Host/Console 進程（避免埠 5249/5250 佔用）
 1. 建置整個 solution
@@ -94,6 +100,16 @@ start_system.bat
 3. 等待 Console 就緒（8 秒）
 4. 開啟 Host（Worker 池 + gRPC Client 連上 Console）
 5. 自動開啟瀏覽器至 Web UI
+
+## 多 Host 模擬與 Job 分派
+
+1. 執行 `start_system_2hosts.bat`。
+2. 開啟 Web UI (`http://localhost:5249`)。
+3. 在上方工具列輸入 Job 筆數 / 前綴，點擊 `產生模擬 Job`。
+4. 觀察：
+    - Node 區塊會顯示 2 個不同 NodeId（代表 2 個 Host）。
+    - Worker 狀態會切換為 `Running` / `Idle`。
+    - 下方 `系統事件 Log` 會顯示節點連線、工作狀態變更、指令與 Job 佇列事件。
 
 ### 手動啟動
 
@@ -132,4 +148,9 @@ Host 會每 10 秒輸出健康檢查資訊，日誌關鍵字為：`HealthCheck`�
   - `WorkerPath`
   - `MinPoolSize`
   - `ConsoleUrl`
+
+### 共用 Job 檔案（本機模擬）
+
+- Host 與 Console 預設共用：`../shared/jobs_mock.json`
+- Worker 會透過環境變數 `SKIJOBCONTROL_JOB_FILE_PATH` 使用同一份 Job 檔案
 

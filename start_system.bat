@@ -9,6 +9,7 @@ echo.
 echo [0/4] Cleaning previous Host/Console processes...
 taskkill /F /IM SkiJobControl.Console.exe /T >nul 2>&1
 taskkill /F /IM SkiJobControl.Host.exe /T >nul 2>&1
+taskkill /F /IM SkiJobControl.Worker.exe /T >nul 2>&1
 echo Cleanup done.
 echo.
 

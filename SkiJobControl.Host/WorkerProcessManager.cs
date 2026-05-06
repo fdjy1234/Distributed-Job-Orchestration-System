@@ -6,16 +6,18 @@ public class WorkerProcessManager
 {
     private readonly string _workerPath;
     private readonly int _minPoolSize;
+    private readonly string _jobFilePath;
     private readonly List<WorkerProcessInfo> _pool = new();
     private readonly object _lock = new();
 
     public event Action<int, string>? OnWorkerMessage;
     public event Action? OnPoolChanged;
 
-    public WorkerProcessManager(string workerPath, int minPoolSize)
+    public WorkerProcessManager(string workerPath, int minPoolSize, string jobFilePath)
     {
         _workerPath = workerPath;
         _minPoolSize = minPoolSize;
+        _jobFilePath = jobFilePath;
     }
 
     public void Initialize()
@@ -46,6 +48,7 @@ public class WorkerProcessManager
             RedirectStandardError = true,
             CreateNoWindow = true
         };
+        startInfo.EnvironmentVariables["SKIJOBCONTROL_JOB_FILE_PATH"] = _jobFilePath;
 
         var process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
         

@@ -11,6 +11,18 @@
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         h1 { margin: 0; color: #2c3e50; }
         .node-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; align-items: center; }
+        .toolbar input { padding: 8px 10px; border: 1px solid #ccd6dd; border-radius: 6px; }
+        .toolbar button { border: none; border-radius: 6px; background: #2c7be5; color: white; padding: 8px 12px; cursor: pointer; }
+        .toolbar button:hover { background: #1f68c1; }
+        .log-panel { margin-top: 24px; background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 12px; }
+        .log-title { font-weight: 600; margin-bottom: 8px; }
+        .log-list { max-height: 260px; overflow: auto; font-family: Consolas, monospace; font-size: 13px; line-height: 1.4; }
+        .log-item { border-bottom: 1px solid rgba(148, 163, 184, 0.2); padding: 4px 0; }
+        .log-time { color: #93c5fd; margin-right: 6px; }
+        .log-level-info { color: #86efac; }
+        .log-level-warn { color: #fcd34d; }
+        .log-level-error { color: #fca5a5; }
         .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 20px; border-top: 5px solid #3498db; }
         .node-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
         .node-id { font-weight: bold; font-size: 1.1em; color: #34495e; }
@@ -33,15 +45,33 @@
             <div id="connection-status" class="badge">SignalR 連線中...</div>
         </header>
 
+        <div class="toolbar">
+            <input id="job-count" type="number" min="1" max="200" value="10" />
+            <input id="job-prefix" type="text" value="SIM" maxlength="12" />
+            <input id="job-type" type="text" value="simulation" maxlength="32" />
+            <button id="enqueue-jobs-btn" type="button">產生模擬 Job</button>
+        </div>
+
         <div id="nodes" class="node-grid">
             <!-- Node cards will be injected here -->
         </div>
+
+        <section class="log-panel">
+            <div class="log-title">系統事件 Log</div>
+            <div id="system-log" class="log-list"></div>
+        </section>
     </div>
 
     <script>
         const nodesContainer = document.getElementById('nodes');
         const statusBadge = document.getElementById('connection-status');
+        const systemLog = document.getElementById('system-log');
+        const enqueueJobsBtn = document.getElementById('enqueue-jobs-btn');
+        const jobCountInput = document.getElementById('job-count');
+        const jobPrefixInput = document.getElementById('job-prefix');
+        const jobTypeInput = document.getElementById('job-type');
         const nodes = {};
+        const maxLogs = 300;
 
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/hubs/node")
@@ -53,6 +83,52 @@
             nodes[status.nodeId] = status;
             renderNodes();
         });
+
+        connection.on("AppendSystemLog", (entry) => {
+            appendLog(entry.level || 'info', entry.message || '');
+        });
+
+        function appendLog(level, message) {
+            const row = document.createElement('div');
+            row.className = 'log-item';
+            const ts = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+            row.innerHTML = `<span class="log-time">[${ts}]</span><span class="log-level-${level.toLowerCase()}">[${level.toUpperCase()}]</span> ${message}`;
+            systemLog.prepend(row);
+
+            while (systemLog.children.length > maxLogs) {
+                systemLog.removeChild(systemLog.lastChild);
+            }
+        }
+
+        async function createMockJobs() {
+            const count = Number(jobCountInput.value || '10');
+            const prefix = (jobPrefixInput.value || 'SIM').trim();
+            const jobType = (jobTypeInput.value || 'simulation').trim();
+
+            enqueueJobsBtn.disabled = true;
+            try {
+                const response = await fetch('/api/control/mock-jobs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count, prefix, jobType })
+                });
+
+                if (!response.ok) {
+                    const msg = await response.text();
+                    appendLog('error', `產生 Job 失敗: ${msg}`);
+                    return;
+                }
+
+                const result = await response.json();
+                appendLog('info', `已加入 ${result.queued} 筆 Job，前綴 ${result.prefix}`);
+            } catch (err) {
+                appendLog('error', `產生 Job 發生例外: ${err.message || err}`);
+            } finally {
+                enqueueJobsBtn.disabled = false;
+            }
+        }
+
+        enqueueJobsBtn.addEventListener('click', createMockJobs);
 
         async function terminateWorker(nodeId, pid, jobId) {
             if (!confirm(`確定要終止進程 ${pid} (任務: ${jobId || '無'}) 嗎？`)) return;
@@ -115,10 +191,12 @@
             .then(() => {
                 statusBadge.textContent = 'SignalR 已連線';
                 statusBadge.style.background = '#27ae60';
+                appendLog('info', 'SignalR 連線成功。');
             })
             .catch(err => {
                 statusBadge.textContent = '連線失敗';
                 statusBadge.style.background = '#e74c3c';
+                appendLog('error', `SignalR 連線失敗: ${err.message || err}`);
                 console.error(err);
             });
     </script>

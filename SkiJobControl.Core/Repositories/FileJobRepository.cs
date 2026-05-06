@@ -7,10 +7,30 @@ public class FileJobRepository : IJobRepository
 {
     private readonly string _filePath;
     private static readonly object _fileLock = new();
+    private const string SharedFileEnv = "SKIJOBCONTROL_JOB_FILE_PATH";
 
     public FileJobRepository(string filePath = "jobs_mock.json")
     {
-        _filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
+        var sharedPath = Environment.GetEnvironmentVariable(SharedFileEnv);
+        if (!string.IsNullOrWhiteSpace(sharedPath))
+        {
+            _filePath = Path.GetFullPath(sharedPath);
+        }
+        else if (Path.IsPathRooted(filePath))
+        {
+            _filePath = Path.GetFullPath(filePath);
+        }
+        else
+        {
+            _filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
+        }
+
+        var dir = Path.GetDirectoryName(_filePath);
+        if (!string.IsNullOrWhiteSpace(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
         EnsureFileExists();
     }
 
@@ -91,6 +111,23 @@ public class FileJobRepository : IJobRepository
         {
             var jobs = ReadJobs();
             return jobs.FirstOrDefault(j => j.JobId == jobId);
+        }
+    }
+
+    public async Task<int> EnqueueJobsAsync(IEnumerable<Job> jobs)
+    {
+        lock (_fileLock)
+        {
+            var currentJobs = ReadJobs();
+            var appendJobs = jobs.ToList();
+            if (appendJobs.Count == 0)
+            {
+                return 0;
+            }
+
+            currentJobs.AddRange(appendJobs);
+            SaveJobs(currentJobs);
+            return appendJobs.Count;
         }
     }
 }

@@ -9,6 +9,7 @@ public interface IJobRepository
     Task<Job?> DequeueJobAsync(string workerId);
     Task UpdateJobStatusAsync(string jobId, int status, string? workerId = null);
     Task<Job?> GetJobByIdAsync(string jobId);
+    Task<int> EnqueueJobsAsync(IEnumerable<Job> jobs);
 }
 
 public class OracleJobRepository : IJobRepository
@@ -80,5 +81,37 @@ public class OracleJobRepository : IJobRepository
             FROM jobs 
             WHERE job_id = :jobId";
         return await connection.QueryFirstOrDefaultAsync<Job>(sql, new { jobId });
+    }
+
+    public async Task<int> EnqueueJobsAsync(IEnumerable<Job> jobs)
+    {
+        var jobList = jobs.ToList();
+        if (jobList.Count == 0)
+        {
+            return 0;
+        }
+
+        using var connection = new OracleConnection(_connectionString);
+        await connection.OpenAsync();
+        using var transaction = connection.BeginTransaction();
+
+        const string sql = @"
+            INSERT INTO jobs (job_id, payload, status, worker_id, update_time)
+            VALUES (:jobId, :payload, :status, :workerId, :updateTime)";
+
+        foreach (var job in jobList)
+        {
+            await connection.ExecuteAsync(sql, new
+            {
+                jobId = job.JobId,
+                payload = job.Payload,
+                status = job.Status,
+                workerId = job.WorkerId,
+                updateTime = job.UpdateTime
+            }, transaction: transaction);
+        }
+
+        await transaction.CommitAsync();
+        return jobList.Count;
     }
 }
