@@ -327,5 +327,145 @@
     "Status": 2,
     "WorkerId": "IT205_f5fcad87",
     "UpdateTime": "2026-05-06T08:21:41.4041222+08:00"
+  },
+  {
+    "JobId": "SIM_20260506012409_001",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:1}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T09:24:14.6371224+08:00"
+  },
+  {
+    "JobId": "SIM_20260506012409_002",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:2}",
+    "Status": 9,
+    "WorkerId": "IT205_f5fcad87",
+    "UpdateTime": "2026-05-06T09:24:15.6205863+08:00"
+  },
+  {
+    "JobId": "SIM_20260506012409_003",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:3}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T09:24:17.6536698+08:00"
+  },
+  {
+    "JobId": "SIM_20260506012409_004",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:4}",
+    "Status": 2,
+    "WorkerId": "IT205_f5fcad87",
+    "UpdateTime": "2026-05-06T09:24:18.609186+08:00"
+  },
+  {
+    "JobId": "SIM_20260506012409_005",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:5}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T09:24:20.6559476+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042221_001",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:1}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T12:22:27.6537881+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042221_002",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:2}",
+    "Status": 2,
+    "WorkerId": "IT205_f5fcad87",
+    "UpdateTime": "2026-05-06T12:22:27.6670935+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042221_003",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:3}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T12:22:30.6819926+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042221_004",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:4}",
+    "Status": 2,
+    "WorkerId": "IT205_f5fcad87",
+    "UpdateTime": "2026-05-06T12:22:30.7110088+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042221_005",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:5}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T12:22:33.6725777+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_001",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:1}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T12:22:48.7166596+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_002",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:2}",
+    "Status": 2,
+    "WorkerId": "IT205_f5fcad87",
+    "UpdateTime": "2026-05-06T12:22:48.7783109+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_003",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:3}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T12:22:51.7611925+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_004",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:4}",
+    "Status": 2,
+    "WorkerId": "IT205_f5fcad87",
+    "UpdateTime": "2026-05-06T12:22:51.7906416+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_005",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:5}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T12:22:54.7716084+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_006",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:6}",
+    "Status": 2,
+    "WorkerId": "IT205_f5fcad87",
+    "UpdateTime": "2026-05-06T12:22:54.8333108+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_007",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:7}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T12:22:57.7568526+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_008",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:8}",
+    "Status": 2,
+    "WorkerId": "IT205_f5fcad87",
+    "UpdateTime": "2026-05-06T12:22:57.8216009+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_009",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:9}",
+    "Status": 2,
+    "WorkerId": "IT205_af786281",
+    "UpdateTime": "2026-05-06T12:23:00.765677+08:00"
+  },
+  {
+    "JobId": "SIM_20260506042241_010",
+    "Payload": "{\u0022type\u0022:\u0022simulation\u0022,\u0022batch\u0022:\u0022SIM\u0022,\u0022seq\u0022:10}",
+    "Status": 2,
+    "WorkerId": "IT205_f5fcad87",
+    "UpdateTime": "2026-05-06T12:23:00.8289704+08:00"
   }
 ]
